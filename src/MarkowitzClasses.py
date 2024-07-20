@@ -1,10 +1,14 @@
 from random import randrange
 from datetime import datetime
 import json
+import re
+import pandas as pd
 import yfinance as yf
 from pyetfdb_scraper.etf import ETF, load_etfs
+from utils import extract_percent
 
-ETF_FILE = '../static_data/etf_returns.json'
+ETF_FILE = 'data/etf_returns.json'
+USER_AGENT_FILE = 'data/user-agents.txt'
 RETURN_PERIODS = ['1_month_return',
                   '3_month_return',
                   'ytd_return',
@@ -14,13 +18,13 @@ RETURN_PERIODS = ['1_month_return',
 STOCK_HORIZON = '5y'
 
 class MarkowitzOptimizer:
-    def __init__(self, stocks: list[str]):
+    def __init__(self, stocks: list[tuple[str, str]]):
         self.stocks = stocks
 
     def get_user_agents(self) -> list[str]:
         """Retrieve list of all randomized user agents"""
         user_agent_list = []
-        with open('../static_data/user-agents.txt') as text_file:
+        with open(USER_AGENT_FILE) as text_file:
             for line in text_file:
                 user_agent_list.append(line)
         return user_agent_list
@@ -53,14 +57,30 @@ class MarkowitzOptimizer:
             json.dump(etf_dict, file, ensure_ascii = False)
         return etf_dict
     
+    def historical_returns(self, stock_name: str) -> list[int]:
+        """Produces a list containing the 6 (annualized) returns in percent"""
+        stock_obj = yf.Ticker(stock_name)
+        stock_df = stock_obj.history(period=STOCK_HORIZON)
+        print(stock_df['Close']['2019-07-22 00:00:00-04:00'])
+
+    def compute_portfolio_variance(self) -> int:
+        return 0
+
     def suggest_etfs(self):
         if self.should_update_data():
             self.update_etf_data()
         with open(ETF_FILE, encoding='utf-8', mode='r') as file:
             etf_dict = json.load(file)
-        for stock_name in self.stocks:
-            stock_obj = yf.Ticker(stock_name)
-            print(stock_obj.history(period=STOCK_HORIZON))
-
-    def compute_portfolio_variance(self) -> int:
-        return 0
+        returns_matrix = []
+        for etf in etf_dict:
+            if etf == 'download_date':
+                continue
+            returns_list = []
+            for horizon in RETURN_PERIODS:
+                returns_list.append(extract_percent(etf_dict[etf][horizon]))
+            returns_matrix.append(returns_list)
+        for stock in self.stocks:
+            stock_name = stock[0]
+            shares = stock[1]
+            returns_list = self.historical_returns(stock_name)
+            returns_matrix.append(returns_list)
