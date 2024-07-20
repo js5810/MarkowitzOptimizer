@@ -1,10 +1,66 @@
+from random import randrange
+from datetime import datetime
+import json
+import yfinance as yf
+from pyetfdb_scraper.etf import ETF, load_etfs
+
+ETF_FILE = '../static_data/etf_returns.json'
+RETURN_PERIODS = ['1_month_return',
+                  '3_month_return',
+                  'ytd_return',
+                  '1_year_return',
+                  '3_year_return',
+                  '5_year_return']
+STOCK_HORIZON = '5y'
+
 class MarkowitzOptimizer:
-    def __init__(self, equities: list[str]):
-        self.equities = equities
+    def __init__(self, stocks: list[str]):
+        self.stocks = stocks
+
+    def get_user_agents(self) -> list[str]:
+        """Retrieve list of all randomized user agents"""
+        user_agent_list = []
+        with open('../static_data/user-agents.txt') as text_file:
+            for line in text_file:
+                user_agent_list.append(line)
+        return user_agent_list
+
+    def should_update_data(self) -> bool:
+        """Check if the ETF returns data should be updated by looking at last download date metadata"""
+        with open(ETF_FILE, encoding='utf-8', mode='r') as file:  # encoding parameter for windows machines
+            etf_dict = json.load(file)
+            last_date = datetime.strptime(etf_dict['download_date'], '%m/%d/%y %H:%M:%S')
+        return (datetime.now() - last_date).days > 28
+
+    def update_etf_data(self) -> None:
+        """Update the file containing monthly ETF return data"""
+        full_etf_list = load_etfs()
+        user_agent_list = self.get_user_agents()
+        user_agent_count = len(user_agent_list)
+        etf_dict = {}
+        for etf_symbol in full_etf_list[0:100]:
+            user_agent = user_agent_list[randrange(user_agent_count)]  # use a random user agent each time
+            etf = ETF(etf_symbol, user_agent)
+            curr_dict = {}
+            for horizon in RETURN_PERIODS:
+                for time_data in etf.performance:
+                    if horizon in time_data:
+                        return_val = time_data[horizon]
+                        curr_dict[horizon] = return_val
+            etf_dict[etf_symbol] = curr_dict
+        etf_dict['download_date'] = datetime.now().strftime('%m/%d/%y %H:%M:%S')
+        with open(ETF_FILE, encoding='utf-8', mode='w') as file:
+            json.dump(etf_dict, file, ensure_ascii = False)
+        return etf_dict
     
-    def suggest_etfs(self) -> list[str]:
-        return []
+    def suggest_etfs(self):
+        if self.should_update_data():
+            self.update_etf_data()
+        with open(ETF_FILE, encoding='utf-8', mode='r') as file:
+            etf_dict = json.load(file)
+        for stock_name in self.stocks:
+            stock_obj = yf.Ticker(stock_name)
+            print(stock_obj.history(period=STOCK_HORIZON))
 
     def compute_portfolio_variance(self) -> int:
-        
         return 0
