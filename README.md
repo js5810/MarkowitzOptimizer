@@ -3,7 +3,7 @@
 ## Problem Description
 Given a user's stock portfolio, our goal is to recommend a few ETFs to add to the portfolio to help boost return while keeping risk minimal. The unique constraint of our problem is that we are adding onto an existing portfolio instead of building one from scratch. Thus, we modify the classic mean-variance model to tailor it to our needs.
 
-## Theory of Mean-Variance Analysis and Simplifications
+## Theory Behind Markowitz's Mean-Variance Model and Assumptions
 Just like any financial model, Markowitz's meam-variance analysis invovles simplifications and assumptions that allow us to mathematically analyze different portfolios. The assumptions of the model are:
 
 - Historical variance is used as a proxy for risk
