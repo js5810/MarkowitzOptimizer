@@ -16,13 +16,17 @@ In our implementation we further assume:
 
 With these assumptions, we model the problem as follows. Let $X$ be a continuous random variable for the return of a portfolio containing $n$ total assets. Furthermore, let $X_{i}$ be random variables for the return of the $i\text{th}$ asset in the portfolio for $1 \leq i \leq n$. We then have
 
-$$\begin{align}\displaystyle{X=\sum_{i=1}^{n}w_{i}X_{i}}\end{align}$$
+$$\displaystyle{X=\sum_{i=1}^{n}w_{i}X_{i}}$$
 
 where $w_i$ is the weight of the $i\text{th}$ asset. Note that $w_{i}$ can have negative value (indicating being short the asset) as long as $w_1 + w_2 + \cdots + w_n = 1$. By linearity of expectation and expanding the variance of a sum of random variables in terms of pairwise covariances we get
 
 $$\displaystyle{E(X)=\sum_{i=1}^{n}w_{i}E(X_{i}) \ \ \ \ and \ \ \ \ Var(X)=\sum_{i=1}^{n}w_{i}^2 Var(X_{i}) + 2\sum_{i < j}w_{i}w_{j}Cov(X_{i}, X_{j})}$$
 
-Since we do not know the population mean, variance, and covariance of the $X_{i}$'s, we use sampled values obtained from data provided on `yahoo finance` and `etfdb` to approximate the expected return and portfolio variance. Given
+Since we do not know the population mean, variance, and covariance of the $X_{i}$'s, we use sampled values obtained from data provided on `yahoo finance` and `etfdb` to approximate the expected return and portfolio variance. We do this by taking $k$ samples of historical monthly returns for each asset. Let the monthly returns for asset $i$ be $\[x_{1}^{(i)}, x_{2}^{(i)}, \cdots, x_{k}^{(i)}\]$. Then, the sample metrics to approximate $E(X_i)$, $Var(X_i)$, and $Cov(X_i, X_j)$ are respectively:
+
+$$\overline{x^{(i)}}=\frac{x_{1}^{(i)}+\cdots+x_{k}^{(i)}}{k}, \ \ \ \ {s^{(i)}}^2 = \frac{1}{k-1}\cdot \sum_{a=1}^{k} (x_{a}^{(i)} - \overline{x^{(i)}} )^2, \ \ \ \ {s^{ij}}^2=\frac{1}{k-1} \cdot \sum_{a=1}^{k}(r_{a}^{(i)} - \overline{r^{(i)}}) (r_{a}^{(j)} - \overline{r^{(j)}})$$
+
+Substituting these quantities above, we now have an optimization problem where we need to find the best $\[w_1, w_2, \cdots, w_n\]$ that minimizes variance given a fixed expected return. This can be done using Lagrange multipliers.
 
 ## Limitations:
 The assumptions of our model introduce some clear limitations:
