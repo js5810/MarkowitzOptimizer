@@ -24,7 +24,9 @@ $$\displaystyle{E(X)=\sum_{i=1}^{n}w_{i}E(X_{i}) \ \ \ \ and \ \ \ \ Var(X)=\sum
 
 We can rewrite the two quantities in terms of the $\color{red}\textbf{part we can optimize}$ and the $\color{blue}\textbf{constant part}$
 
-$$\displaystyle{E(X)={\color{red}\sum_{i=1}^{n-s}w_{i}E(X_{i})} + {\color{blue}\sum_{i=n-s+1}^{n}w_{i}E(X_{i})} \ \ \ \ and \ \ \ \ Var(X)={\color{red}\sum_{i=1}^{n-s}w_{i}^2 Var(X_{i})} + {\color{red}2\sum_{i < j}w_{i}w_{j}Cov(X_{i}, X_{j})} + {\color{blue}\sum_{i=n-s+1}^{n}w_{i}^2 Var(X_{i})} }$$
+$$\displaystyle{E(X)={\color{red}\sum_{i=1}^{n-s}w_{i}E(X_{i})} + {\color{blue}\sum_{i=n-s+1}^{n}w_{i}E(X_{i})} }$$ 
+
+$$\displaystyle{Var(X)={\color{red}\sum_{i=1}^{n-s}w_{i}^2 Var(X_{i})} + {\color{red}2\cdot \Bigg( \sum_{i < j \leq n-s}w_{i}w_{j}Cov(X_{i}, X_{j}) \Bigg) + 2\cdot \Bigg( \sum_{i \leq n-s \text{ and } j > n-s}w_{i}w_{j}Cov(X_{i}, X_{j}) \Bigg) } + {\color{blue}\sum_{i=n-s+1}^{n}w_{i}^2 Var(X_{i}) + 2\cdot \Bigg( \sum_{n-s < i < j}w_{i}w_{j}Cov(X_{i}, X_{j}) \Bigg) } }$$
 
 Since we do not know the population mean, variance, and covariance of the $X_{i}$'s, we use sampled values obtained from data provided on `yahoo finance` and `etfdb` to approximate the expected return and portfolio variance. We do this by taking $k$ samples of historical monthly returns for each asset. Let the monthly returns for asset $i$ be $\[x_{1}^{(i)}, x_{2}^{(i)}, \cdots, x_{k}^{(i)}\]$. Then, the sample metrics to approximate $E(X_i)$, $Var(X_i)$, and $Cov(X_i, X_j)$ are respectively:
 
